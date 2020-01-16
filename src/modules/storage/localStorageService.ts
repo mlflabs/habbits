@@ -1,10 +1,6 @@
 
 
 class LocalStorageService {
-
-  constructor(platform = 'web') {
-
-  }
   
   async getItem(id: string){
     return localStorage.getItem(id);
@@ -23,9 +19,23 @@ class LocalStorageService {
 
   }
 
+  async setObject(id: string, val: object):Promise<boolean> {
+    try {
+      const str = JSON.stringify(val);
+      const res = await this.setString(id, str);
+      return true;
+    }
+    catch(e){
+      console.log(e);
+      return false;
+    }
+    
+
+  }
 
 
-  async setItem(id: string, val: string) {
+
+  async setString(id: string, val: string) {
     localStorage.setItem(id, val);
   }
   

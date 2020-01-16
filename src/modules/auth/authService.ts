@@ -1,11 +1,13 @@
 
-import { BehaviorSubject, throwError, Subject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import * as moment from 'moment';
 import { isEqual } from 'lodash';
 import anylogger from 'anylogger';
-import axios from 'axios';
 import localStorageService from '../storage/localStorageService';
-import env from '../../env';
+import {env} from '../../env';
+import  { getPostRequest, post, ajaxResponse } from '../ajax/ajax';
+import { toastService } from '../toast/toastService';
+
 
 
 const log =  anylogger('auth: authService');
@@ -44,7 +46,7 @@ export const getUser = (values: any):User => {
     username: values.username || GUEST,
     email: values.email||null,
     token: values.token||null,
-    token_expiery: values.string||null
+    token_expiery: values.token_expiery||values.expires||null
   }
 }
 
@@ -92,7 +94,7 @@ export class AuthService {
   }
 
 
-  updateUser(user: User, forceLogout = false) {
+  async updateUser(user: User, forceLogout = false) {
     log.info('Userupdate');
     if(!isGuest(user)) {
       if(user.username !== this._user.username){
@@ -101,6 +103,7 @@ export class AuthService {
 
       if(!isEqual(this._user, user)) {
         this._user = user;
+        await localStorageService.setObject(AUTH_USER_KEY, user)
       }
       
       if(!isEqual(this._isAuthenticated, true)) {
@@ -115,6 +118,8 @@ export class AuthService {
     // this.user$.next(this._user);
     this._isAuthenticated = false;
     this.isAuthenticated$.next(false);
+
+    await localStorageService.setObject(AUTH_USER_KEY, getGuestUser);
 
   }
 
@@ -149,24 +154,31 @@ export class AuthService {
   }
 
 
-  public async login(name: string, password: string, strategy: string = 'local') {
+  public async login(id: string, password: string):Promise<ajaxResponse> {
+    const res = await post( getPostRequest(env.AUTH_API_URL+'/auth/login',
+      { username: id, password: password, app: env.APP_ID },
+      null, true,  'Login in, please wait'));
 
-    /*
-const res = await this.http.post(environment.auth_api+'/auth/login',
-      {
-          strategy: 'local',
-          id: name,
-          app: environment.app_id,
-          password: password
+    return res;
+  }
 
-    */
-    const res = await axios({
-      url: env.AUTH_API_URL,
-      method: 'get'
-    })
+  public async loginAndRedirect(id: string, password: string, history, location) {
+    const res = await post( getPostRequest(env.AUTH_API_URL+'/auth/login',
+      { username: id, password: password, app: env.APP_ID },
+      null, true,  'Login in, please wait'));
 
-    console.log(res);
-    
+      console.log("Login RES: ", res);
+      if(res.success) {
+        this.updateUser(getUser(res.data))
+        console.log("LOGIN LOCATION:::: ", location, history);
+  
+        const redirect = location.state.prev || '/';
+        history.push(redirect);
+      }
+      else {
+        console.log(res);
+        toastService.printServerErrors(res);
+      }
   }
 
   public async logout() {

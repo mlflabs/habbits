@@ -62,10 +62,6 @@ const MyInput = ({data, updateFunction}) => {
           <IonNote key={m}>{m}</IonNote>
         ))}
         {printErrors()}
-
-        
-        
-        
     </IonItem>
   )
 }

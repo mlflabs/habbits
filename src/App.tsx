@@ -9,8 +9,9 @@ import {
   IonTabButton,
   IonTabs
 } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { apps, flash, send } from 'ionicons/icons';
+import { IonReactRouter
+ } from '@ionic/react-router';
+import { apps, flash, person } from 'ionicons/icons';
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
@@ -35,13 +36,21 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import Home from './pages/Home';
-import authRoutes from './modules/auth/routes';
+import NotFound from './pages/NotFound';
 import PrivateRoute from './modules/auth/privateRoute';
+import UnauthenticatedRoute from './modules/auth/unauthenticatedRoute';
+import { useUserFacade } from './modules/auth/hooks/user.hook';
+
+
+// my css
+import './my.css';
 import LoginPage from './modules/auth/components/login.page';
 import LogoutPage from './modules/auth/components/logout.page';
 import UserPage from './modules/auth/components/user.page';
 import RegisterPage from './modules/auth/components/register.page';
-import { useUserFacade } from './modules/auth/hooks/user.hook';
+import { Loading } from './modules/loading/loading.component';
+import { Toasts } from './modules/toast/toast.component';
+import { NOTFOUND } from 'dns';
 
 const App: React.FC = () => {
   
@@ -55,26 +64,22 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        authenticated? (
+        <Loading/><Toasts/>
+        {authenticated ? (
         <IonTabs>
           <IonRouterOutlet>
-
-            <Route path="/home" component={Home} exact={true} />
-
-
-            <Route path="/tab1" component={Tab1} exact={true} />
-            <Route path="/tab2" component={Tab2} exact={true} />
-            <Route path="/tab2/details" component={Details} />
-            <Route path="/tab3" component={Tab3} />
-            <Route path="/" render={() => <Redirect to="/home" />} exact={true} />
-          
+            <PrivateRoute path="/home" component={Home} exact={true} />
+            <PrivateRoute path="/tab1" component={Tab1} exact={true} />
+            <PrivateRoute path="/tab2" component={Tab2} exact={true} />
+            <PrivateRoute path="/tab2/details" component={Details} exact={true} />
+            <PrivateRoute path="/tab3" component={Tab3} exact={true} />
             
-            <Route exact path="/auth/login" component={LoginPage}/>
-            <Route exact path="/auth/logout" component={LogoutPage}/>
-            <Route exact path="/auth/user" component={UserPage}/>
-            <Route exact path="/auth/register" component={RegisterPage}/>
+            <Route exact path="/auth/user" component={UserPage} />
 
-          
+            
+
+            <Route path="/" render={() => <Redirect to="/home" />} exact={true} />
+            <Route path="*" component={NotFound} exact={false} />
           </IonRouterOutlet>
 
           <IonTabBar slot="bottom">
@@ -86,20 +91,17 @@ const App: React.FC = () => {
               <IonIcon icon={apps} />
               <IonLabel>Tab Two</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab3" href="/tab3">
-              <IonIcon icon={send} />
-              <IonLabel>Tab Three</IonLabel>
+            <IonTabButton tab="tab3" href="/auth/user">
+              <IonIcon icon={person} />
+              <IonLabel>Profile</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
         ) : (
-          <Route path="/home" component={Home} exact={true} />
-          <Route exact path="/auth/login" component={LoginPage}/>
-          <Route exact path="/auth/logout" component={LogoutPage}/>
-          <Route exact path="/auth/user" component={UserPage}/>
-          <Route exact path="/auth/register" component={RegisterPage}/>
-          <Route path="/" render={() => <Redirect to="/home" />} exact={true} />
-        )
+          <IonRouterOutlet>
+            <UnauthenticatedRoute exact path="*" component={Home} />
+          </IonRouterOutlet>
+        )}
       </IonReactRouter>
     </IonApp>
   );

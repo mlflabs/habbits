@@ -1,16 +1,17 @@
-import React, { useEffect, useState, Dispatch } from 'react'
-import { FormItem } from './myForm';
+import React, { useEffect, useState } from 'react'
+import { FormItem, FormValueItem } from './myForm';
 import MyInput from './myInput';
 import { saveIntoArray, findById } from '../../utils';
-import { IonItem, IonButton } from '@ionic/react';
+import { IonButton } from '@ionic/react';
 import validator from 'validator';
-import { throwError } from 'rxjs';
 
 
 // use to generate form, usually from outside form passed into here
+// so far we can use, ones that have stars have been tested
+// "text", "password", "email", "number", "search", "tel", and "url"
 export interface FormItem { 
   id: string;
-  name?: string;
+  displayName?: string;
   type: string;
   messages?: string[];
   validators?: any[];  
@@ -27,7 +28,8 @@ export interface ValidatorItem {
 // use to hold form state
 export interface FormValueItem {
   id: string;
-  name: string;
+  displayName: string;
+  type: string;
   value: string;
   messages: string[];
   errors: string[];
@@ -36,9 +38,22 @@ export interface FormValueItem {
   //status: number; //0: untouched, 1: valid, 2: not valid
 }
 
+export interface OptionsItem {
+  submitButtonText: string;
+}
+
+export const defaultOptions:OptionsItem = {
+  submitButtonText: "Submit",
+}
+
+export const getFormOptions = (settings:{}) => {
+  return {...defaultOptions, ... settings};
+}
+
 export interface Props {
-  schema: FormItem[],
-  submitFunction: Function
+  items: FormItem[],
+  submitFunction: Function,
+  options?: OptionsItem
 }
 
 export interface State {
@@ -50,32 +65,58 @@ export function getValidator(type:string, options:any = null, message:string|nul
   return {type, options, message};
 }
 
-const MyForm = ({schema, submitFunction}:Props) => {
+
+
+const MyForm = (props:Props) => {
+  const submitFunction = props.submitFunction;
+  const options = props.options|| defaultOptions;
 
   const [state, setState] = useState<State>({items:[], valid:false});
 
-
-
   useEffect(() => {
+    initForm(props.items);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[props.items]);
+
+
+  const initForm = (items) => {
     let model: FormValueItem[] = [];
     // go thourgh props and generate our model from schema;
-    if(schema) { //no schema, do nothing
-      schema.forEach((item:FormItem) => {
-        model.push(getItem( item.id, 
-                            item.name || item.id, 
-                            item.default||'', 
-                            item.messages, 
-                            (Array.isArray(item.validators) && item.validators.length>0), 
-                            false));
-      });
-    }
-    setState({items: model, valid: validateForm(model)});
-    console.log(state);
-  }, [schema]);
+    if(items) { //no schema, do nothing
+      items.forEach((item:FormItem) => {
+        let messages = item.messages;
+        
+        console.log(typeof(messages));
+        if(typeof(messages) === 'string'){
+          console.log('Messages is string');
+        }
+        else if(Array.isArray(messages)){
+          console.log('messages array');
+        }
+        else {
+          messages = [];
+        }
 
-  const updateItem = (id:string, name: string, value:any, messages:string[], hasValidation:boolean, touched:boolean) => {
-    console.log('Update Item,')
-    const items = saveIntoArray(getItem(id, name, value, messages,hasValidation, touched), state.items, 'id')
+        model.push(validateItem({
+            id: item.id,
+            displayName: item.displayName || item.id, 
+            type: item.type,
+            value: item.default||'', 
+            messages,
+            errors: [],
+            dirty:false,
+            hasValidation: (Array.isArray(item.validators) && item.validators.length>0)
+        }));
+      });
+      setState({items: model, valid: validateForm(model)});
+      console.log(state);
+    }
+  }
+
+  //const updateItem = (id:string, displayName: string, type: string, value:any, messages:string[], hasValidation:boolean, touched:boolean) => {
+  const updateItem = (item:FormValueItem) => {
+    console.log('Update Item, ', item);
+    const items = saveIntoArray(validateItem(item), state.items, 'id')
     setState({
       items: items,
       valid: validateForm(items)
@@ -84,19 +125,18 @@ const MyForm = ({schema, submitFunction}:Props) => {
 
 
 
-  const getItem = ( id:string, 
-                    name: string, 
-                    value:string, 
-                    messages: string[] = [], 
-                    hasValidation: boolean,
-                    dirty:boolean): FormValueItem => {
-    const errors: string[] = validate(id, value);
-    console.log({ id, name, value, messages, errors, dirty })
-    return { id, name, value, messages, errors, hasValidation, dirty }
+  const validateItem = (item:FormValueItem): FormValueItem => {
+    const errors: string[] = validate(item.id, item.value);
+    console.log(item)
+    return {...item, ...{errors}}
   }
 
-  const validate = (id:string, value:string): string[] => {
-    const item:FormItem = findById(id, schema, 'id');
+  const validate = (id:string, value:any): string[] => {
+    console.log(typeof(value));
+
+    if(typeof(value) !== 'string') return [];
+    
+    const item:FormItem = findById(id, props.items, 'id');
     if(!item.validators)
       item.validators = [];
 
@@ -111,14 +151,11 @@ const MyForm = ({schema, submitFunction}:Props) => {
         if(!validator.isLength(value, val.options)){
           messages.push(val.message || 'Value length is not valid');
         }
-        /*
-        if(!val.options)
-          throw new Error("isLength validator requires min, max props");
-        if(!val.options.min) 
-          val.options.min = 0; //min can default to 0
-        if(!val.options.max) 
-          throw new Error("isLength validator requires max props");
-        */
+      }
+      if(val.type === 'isEmail'){
+        if(!validator.isEmail(value, val.options)){
+          messages.push(val.message || 'Valid Email required');
+        }
       }
     });
 
@@ -131,9 +168,12 @@ const MyForm = ({schema, submitFunction}:Props) => {
   }
 
 
-  const submit = (event) => {
-    event.preventDefault();
-    submitFunction(state.items);
+  const submit = () => {
+    const form = {};
+    state.items.forEach(item => {
+      form[item.id] = { value: item.value };
+    });
+    submitFunction(form);
     console.log(state);
   }
 
@@ -148,18 +188,18 @@ const MyForm = ({schema, submitFunction}:Props) => {
   
 
   return (
-    <form onSubmit={submit}>
-    { Object.values(state.items).map((i) => (
-      <MyInput key={i.id} data={i} updateFunction={updateItem} />
-    ))}
-    <IonItem key={'submitItem'}>
-        <IonButton  
+    <div>
+        { Object.values(state.items).map((i) => (
+          <MyInput key={i.id} data={i} updateFunction={updateItem} />
+        ))}
+          <IonButton  
+            key={'submitButton'}
             onClick={submit} 
             disabled={!state.valid}
-            color="primary">Save</IonButton>
-    </IonItem>
-    </form>
+            color="primary">{options.submitButtonText}</IonButton>
+    </div>
   )
+
 };
 
 export default MyForm;

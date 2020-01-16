@@ -1,5 +1,8 @@
+const nanoid = require('nanoid');
 
-
+export function getNested(obj, ...args) {
+  return args.reduce((obj, level) => obj && obj[level], obj)
+}
 
 export const waitMS = (ms) => {
   return new Promise((resolve) => {
@@ -8,30 +11,15 @@ export const waitMS = (ms) => {
 };
 
 export function generateShortUUID(): string {
-  let d = Date.now();
-
-  const uuid = 'xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    // tslint:disable-next-line:no-bitwise
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    // tslint:disable-next-line:no-bitwise
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-  return uuid;
+  return 'i'+nanoid();
 }
 
-export function generateUUID(): string {
-  let d = Date.now();
 
-  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    // tslint:disable-next-line:no-bitwise
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    // tslint:disable-next-line:no-bitwise
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
-  return uuid;
+
+export function generateUUID() { // Public Domain/MIT
+  return 'id'+nanoid();
 }
+
 
 
 

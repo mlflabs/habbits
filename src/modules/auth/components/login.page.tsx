@@ -1,37 +1,66 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, Props } from 'react';
 
 import {
+  IonIcon,
   IonHeader,
   IonToolbar,
   IonTitle,
   IonContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
   IonPage
 } from "@ionic/react";
+import { logIn} from 'ionicons/icons';
+import MyForm, { getValidator, FormItem, getFormOptions } from '../../forms/myForm';
+import { authService } from '../authService';
+import { PrintServerErrors } from '../../forms/printServerErrors.component';
+import { toastService } from '../../toast/toastService';
+import { useLocation, useHistory } from 'react-router';
 
-const LoginPage: React.FC = () => {
 
-  const [form, setForm] = useState({id:'', password:''});
+const LoginPage  = () => {
+
+  console.log("LOGIN PAGE");
+  const location = useLocation();
+  const history = useHistory();
+  //console.log("PREV:::: ", props.prevLocation)
+
+  const options = getFormOptions({
+    submitButtongText: "Login"
+  });
   
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    try {
-      // const user = await login(email, password);
-
-      // ...
-    } catch (e) {
-      console.error(e);
-    }
+  const form: FormItem[] = [
+    {
+      id: 'id',
+      displayName: 'ID (Username or Email): ',
+      type: 'string',
+      validators: [
+        getValidator('isLength', {min:3, max:50}, 'ID needs to be between 3 to 50 characters')
+  
+      ],
+    },
+    {
+      id: 'password',
+      displayName: "Password: ",
+      type: 'password',
+      validators: [
+        getValidator('isLength', {min:3, max:50}, 'ID needs to be between 3 to 50 characters')
+      ]
+    },
+    
+  ]
+  
+  const submit = async (form) => {
+    console.log(form);
+    authService.loginAndRedirect(
+        form['id'].value, 
+        form['password'].value,
+        history,
+        location);
   }
 
-  const handleInputChange = (e) => {
-    setForm({...form, ...{[e.target.name]: e.target.value}});
-  }
+
+
+
+
 
 
   return (
@@ -42,20 +71,12 @@ const LoginPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <form onSubmit={e => handleSubmit(e)} action="post">
-          <IonList>
-            <IonItem>
-              <IonLabel>Email</IonLabel>
-              <IonInput  name="id" value={form.id} onInput={(e: any) => handleInputChange(e)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel>Password</IonLabel>
-              <IonInput name="password" type="password" value={form.password} 
-                  onInput={(e: any) => handleInputChange(e)} />
-            </IonItem>
-            <IonButton type="submit">Log in</IonButton>
-          </IonList>
-        </form>
+        <div style={{paddingTop:'50px'}} className="ion-text-center">
+          <IonIcon icon={logIn} className="iconFormCenter" />
+        </div>
+        <div style={{padding:'20px'}}>
+          <MyForm  items={form} options={options} submitFunction={submit} /> 
+        </div>
       </IonContent>
     </IonPage>
   );

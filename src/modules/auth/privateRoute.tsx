@@ -9,9 +9,10 @@ const PrivateRoute = ({ component, exact, path}:
   const [authenticated] = useUserFacade();
   const location = useLocation();
 
-  if(!authenticated)
-    console.log(location);
-    
+  
+  console.log("Location:::: ", location);
+  
+  
 
   return (
     authenticated? (

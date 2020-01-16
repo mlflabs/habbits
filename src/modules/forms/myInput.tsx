@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { FormValueItem } from './myForm';
-import {  IonBackButton, IonButtons, IonContent, 
-  IonInput, IonLabel, IonItem,
-  IonHeader, IonPage, IonTitle, IonToolbar, IonNote, IonText } from '@ionic/react';
+import React from 'react'
+import {  IonInput, IonLabel, IonItem,
+  IonNote, IonText } from '@ionic/react';
 
 
 const MyInput = ({data, updateFunction}) => {
@@ -19,18 +17,15 @@ const MyInput = ({data, updateFunction}) => {
   },[props]);
   */
 
+  console.log("MY Input DATA: ", data);
+
   const handleChange = (event) => {
-    updateFunction(data.id, data.name, event.target.value, 
-        data.messages, data.hasValidation, data.dirty);
-    // setValue(event.target.value);
-    // data.id = test;
+    updateFunction({...data, ...{value: event.target.value, dirty: true}});
   };
 
   const handleBlur = (event) => {
     if(data.dirty === true) return;
-    updateFunction(data.id, data.name, event.target.value, 
-      data.messages, data.hasValidation, true);
-    
+    updateFunction({...data, ...{value: event.target.value, dirty: true}});
   }
 
   const printErrors = () => {
@@ -45,8 +40,8 @@ const MyInput = ({data, updateFunction}) => {
 
   return (
     <IonItem>
-      <IonLabel position="floating">
-        {data.name}
+      <IonLabel position="stacked">
+        {data.displayName}
         { data.hasValidation?(
           <IonText color="danger">*</IonText>
         ):null}
@@ -54,18 +49,13 @@ const MyInput = ({data, updateFunction}) => {
       <IonInput 
         name={data.id}
         value={data.value}
-        // color={"warning"}
-        required={true}
+        type={data.type}
         onIonBlur={handleBlur}
         onIonChange={handleChange}></IonInput>
         {data.messages.map(m => (
           <IonNote key={m}>{m}</IonNote>
         ))}
         {printErrors()}
-
-        
-        
-        
     </IonItem>
   )
 }
