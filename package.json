@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@capacitor/core": "1.4.0",
+    "@capacitor/ios": "^1.4.0",
+    "@ionic/pwa-elements": "^1.4.1",
     "@ionic/react": "^4.11.8",
+    "@ionic/react-hooks": "0.0.6",
     "@ionic/react-router": "^4.11.8",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.149",
@@ -12,22 +16,29 @@
     "@types/react-dom": "^16.9.1",
     "@types/react-router": "^5.1.1",
     "@types/react-router-dom": "^5.1.0",
+    "@xstate/react": "^0.8.1",
     "anylogger": "^0.18.0",
     "axios": "^0.19.0",
+    "hookrouter": "^1.2.3",
     "ionic": "^5.4.13",
     "ionicons": "^4.6.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "nanoid": "^2.1.8",
     "pouchdb": "^7.1.1",
+    "pouchdb-find": "^7.1.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
+    "react-pose": "^4.0.10",
     "react-router": "^5.1.0",
     "react-router-dom": "^5.1.0",
     "react-scripts": "3.2.0",
+    "react-spring": "^8.0.27",
+    "rxjs": "^6.5.4",
     "typescript": "3.6.3",
     "ulog": "^1.1.0",
-    "validator": "^12.1.0"
+    "validator": "^12.1.0",
+    "xstate": "^4.7.6"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -50,5 +61,9 @@
       "last 1 safari version"
     ]
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "devDependencies": {
+    "@capacitor/cli": "1.4.0",
+    "prettier": "^1.19.1"
+  }
 }

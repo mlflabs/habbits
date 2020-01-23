@@ -1,5 +1,5 @@
 const dev = {
-  COUCH_SERVER: 'http://localhost:3001/local_habbits',
+  COUCH_SERVER: 'http://localhost:3001/aa_habbits',
 }
 
 const prod = {

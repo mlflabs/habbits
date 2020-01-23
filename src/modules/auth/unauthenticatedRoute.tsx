@@ -1,24 +1,22 @@
 import React, { FunctionComponent } from "react";
-import { Route, Redirect, useLocation, useHistory, useParams } from "react-router-dom";
-import { useUserFacade } from "./hooks/user.hook";
+import { Route, Redirect, useLocation } from "react-router-dom";
 import LoginPage from './components/login.page';
 import RegisterPage from './components/register.page';
 
 
-const UnauthenticatedRoute = ({ component, exact, path }: 
+const UnauthenticatedRoute = ({ exact, path }: 
   { component: FunctionComponent<{}>, exact: boolean, path: string }) => {
 
-  const [authenticated] = useUserFacade();
+  
   const location = useLocation();
-  const history = useHistory();
-  const params = useParams();
-  //const path = location.pathname;
+  // const history = useHistory();
+  // const params = useParams();
+  // const path = location.pathname;
   
-  console.log("Location:::: ", location);
-  console.log('HISTORY:::: ', history);
-  console.log('PARAMS:::: ', params);
+  // console.log("Location:::: ", location);
+  // console.log('HISTORY:::: ', history);
+  // console.log('PARAMS:::: ', params);
 
-  
 
   const getRoute = () => {
     if(location.pathname === '/auth/register'){
@@ -27,7 +25,7 @@ const UnauthenticatedRoute = ({ component, exact, path }:
     else if(location.pathname === '/auth/login'){
       return <Route
                 path='/auth/login'
-                render={(props) => <LoginPage />}
+                render={() => <LoginPage />}
               />
     }
     else {

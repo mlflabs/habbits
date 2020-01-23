@@ -1,25 +1,16 @@
 import React, { FunctionComponent } from "react";
-import { Route, Redirect, useLocation } from "react-router-dom";
+import { Route, useLocation } from "react-router-dom";
 import { useUserFacade } from "./hooks/user.hook";
-
 
 const PrivateRoute = ({ component, exact, path}: 
   { component: FunctionComponent<{}>, exact: boolean, path: string }) => {
 
-  const [authenticated] = useUserFacade();
+  const [] = useUserFacade();
   const location = useLocation();
 
-  
-  console.log("Location:::: ", location);
-  
-  
 
   return (
-    authenticated? (
       <Route path={path} component={component} exact={exact} />
-    ) : (
-      <Redirect to="/auth/login"/>
-    )
   );
 }
 

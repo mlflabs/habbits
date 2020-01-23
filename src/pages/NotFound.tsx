@@ -6,7 +6,6 @@ import {
   IonToolbar} from '@ionic/react';
 import React, {  } from 'react';
 import './Home.css';
-import MyForm, { getValidator, FormItem } from '../modules/forms/myForm';
 
 
 const NotFound: React.FC = () => {

@@ -8,11 +8,11 @@ const IntroPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Register Page</IonTitle>
+          <IonTitle>Loading</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonLabel>Register</IonLabel>
+        <IonLabel>Loading.....</IonLabel>
       </IonContent>
     </IonPage>
   );

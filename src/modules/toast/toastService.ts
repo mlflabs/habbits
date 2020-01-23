@@ -1,6 +1,5 @@
-
-import { BehaviorSubject, Subject } from 'rxjs';
-import { ajaxResponse, errorMessage } from '../ajax/ajax';
+import { Subject } from 'rxjs';
+import { ajaxResponse } from '../ajax/ajax';
 
 export interface ToastMessage {
   message: string,

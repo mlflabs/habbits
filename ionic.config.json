@@ -1,5 +1,7 @@
 {
   "name": "MlfHabbits",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react"
 }

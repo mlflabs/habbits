@@ -47,7 +47,7 @@ export const defaultOptions:OptionsItem = {
 }
 
 export const getFormOptions = (settings:{}) => {
-  return {...defaultOptions, ... settings};
+  return {...defaultOptions, ...settings};
 }
 
 export interface Props {
@@ -109,13 +109,13 @@ const MyForm = (props:Props) => {
         }));
       });
       setState({items: model, valid: validateForm(model)});
-      console.log(state);
+      //console.log(state);
     }
   }
 
   //const updateItem = (id:string, displayName: string, type: string, value:any, messages:string[], hasValidation:boolean, touched:boolean) => {
   const updateItem = (item:FormValueItem) => {
-    console.log('Update Item, ', item);
+    //console.log('Update Item, ', item);
     const items = saveIntoArray(validateItem(item), state.items, 'id')
     setState({
       items: items,
@@ -127,12 +127,12 @@ const MyForm = (props:Props) => {
 
   const validateItem = (item:FormValueItem): FormValueItem => {
     const errors: string[] = validate(item.id, item.value);
-    console.log(item)
+    //console.log(item)
     return {...item, ...{errors}}
   }
 
   const validate = (id:string, value:any): string[] => {
-    console.log(typeof(value));
+    //console.log(typeof(value));
 
     if(typeof(value) !== 'string') return [];
     

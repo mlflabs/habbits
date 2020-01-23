@@ -1,0 +1,8 @@
+{
+  "appId": "com.mlflabs.mlfhabbits",
+  "appName": "MlfHabbits",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "cordova": {}
+}

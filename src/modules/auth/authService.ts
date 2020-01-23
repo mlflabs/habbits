@@ -3,16 +3,21 @@ import { BehaviorSubject } from 'rxjs';
 import * as moment from 'moment';
 import { isEqual } from 'lodash';
 import anylogger from 'anylogger';
-import localStorageService from '../storage/localStorageService';
+import localStorageService from '../localStorage/localStorageService';
 import {env} from '../../env';
 import  { getPostRequest, post, ajaxResponse } from '../ajax/ajax';
 import { toastService } from '../toast/toastService';
 
 
-
 const log =  anylogger('auth: authService');
 
 
+
+export enum AuthStatus {
+  Loading, 
+  Guest, //not loged in
+  User // loged in
+}
 
 
 export const GUEST = 'Guest';
@@ -22,9 +27,6 @@ export interface AuthEvent {
   code: number;
   data: any;
 }
-
-
-
 
 export interface User {
   username: string;
@@ -59,43 +61,31 @@ export function getGuestUser():User {
 }
 
 
-
-
-
-
-
-
-
 export class AuthService {
   private _user:User = getGuestUser();
-  private _authReady = false;
-  public authReady$ = new BehaviorSubject(this._authReady);
-  private _isAuthenticated = false;
-  public isAuthenticated$  = new BehaviorSubject(false);
+  //private _authReady = false;
+  //public authReady$ = new BehaviorSubject(this._authReady);
+  //private _isAuthenticated = false;
+  //public isAuthenticated$  = new BehaviorSubject(false);
+
+  private _authStatus = AuthStatus.Loading;
+  
+  public authStatus$ = new BehaviorSubject(this._authStatus);
+  
   public username$ = new BehaviorSubject(this._user.username);
 
   constructor() {
-    this.loadAuth().then(() => {
-      this._authReady = true;
-      this.authReady$.next(true);
-    });
+    this.loadAuth();
   }
 
-  getIsAuthenticated() {
-    return this._isAuthenticated;
-  }
-
-  getUsername() {
-    return this._user.username;
-  }
-
-  getEmail() {
-    return this._user.email;
-  }
+  getIsAuthenticated():boolean { return this._authStatus === AuthStatus.User; }
+  getUsername() { return this._user.username; }
+  getEmail() { return this._user.email;}
+  getUser() { return this._user };
 
 
   async updateUser(user: User, forceLogout = false) {
-    log.info('Userupdate');
+    log.info('Userupdate: ', user, forceLogout, this._authStatus);
     if(!isGuest(user)) {
       if(user.username !== this._user.username){
         this.username$.next(user.username);
@@ -106,21 +96,19 @@ export class AuthService {
         await localStorageService.setObject(AUTH_USER_KEY, user)
       }
       
-      if(!isEqual(this._isAuthenticated, true)) {
-        this._isAuthenticated = true;
-        this.isAuthenticated$.next(true);
+      if(this._authStatus !== AuthStatus.User) {
+        this.setAuthStatus(AuthStatus.User);
       }
       return;
     }
 
-    if(!this._isAuthenticated && !forceLogout) return;
-
-    // this.user$.next(this._user);
-    this._isAuthenticated = false;
-    this.isAuthenticated$.next(false);
-
-    await localStorageService.setObject(AUTH_USER_KEY, getGuestUser);
-
+    if(this._authStatus !== AuthStatus.Guest){
+      this.setAuthStatus(AuthStatus.Guest)
+  
+      if(forceLogout){
+        await localStorageService.setObject(AUTH_USER_KEY, getGuestUser);
+      }
+    }
   }
 
 
@@ -163,6 +151,7 @@ export class AuthService {
   }
 
   public async loginAndRedirect(id: string, password: string, history, location) {
+    console.log('LoginWithRedirect:: ');
     const res = await post( getPostRequest(env.AUTH_API_URL+'/auth/login',
       { username: id, password: password, app: env.APP_ID },
       null, true,  'Login in, please wait'));
@@ -172,7 +161,9 @@ export class AuthService {
         this.updateUser(getUser(res.data))
         console.log("LOGIN LOCATION:::: ", location, history);
   
-        const redirect = location.state.prev || '/';
+        console.log("HISTORY REDIRECT::: ", location.state.prev);
+        const next = location.state.prev.startsWith('/auth/')? '/': location.state.prev;
+        const redirect = next || '/';
         history.push(redirect);
       }
       else {
@@ -204,6 +195,17 @@ export class AuthService {
   public async forgotPassword() {
     //const res = await this.http.post(environment.auth_api+'/auth/forgotpassword'
   }
+
+
+  private setAuthStatus(status:AuthStatus){
+    this._authStatus = status;
+    this.authStatus$.next(status);
+  }
+
+  public getAuthStatus():AuthStatus {
+    return this._authStatus;
+  }
+
 }
 export const authService = new AuthService();
 

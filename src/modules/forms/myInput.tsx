@@ -17,7 +17,7 @@ const MyInput = ({data, updateFunction}) => {
   },[props]);
   */
 
-  console.log("MY Input DATA: ", data);
+  //console.log("MY Input DATA: ", data);
 
   const handleChange = (event) => {
     updateFunction({...data, ...{value: event.target.value, dirty: true}});

@@ -22,7 +22,7 @@ class LocalStorageService {
   async setObject(id: string, val: object):Promise<boolean> {
     try {
       const str = JSON.stringify(val);
-      const res = await this.setString(id, str);
+      await localStorage.setItem(id, str);
       return true;
     }
     catch(e){

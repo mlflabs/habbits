@@ -1,4 +1,4 @@
-import React, { useState, Props } from 'react';
+import React, {  } from 'react';
 
 import {
   IonIcon,
@@ -11,8 +11,6 @@ import {
 import { logIn} from 'ionicons/icons';
 import MyForm, { getValidator, FormItem, getFormOptions } from '../../forms/myForm';
 import { authService } from '../authService';
-import { PrintServerErrors } from '../../forms/printServerErrors.component';
-import { toastService } from '../../toast/toastService';
 import { useLocation, useHistory } from 'react-router';
 
 
@@ -21,7 +19,7 @@ const LoginPage  = () => {
   console.log("LOGIN PAGE");
   const location = useLocation();
   const history = useHistory();
-  //console.log("PREV:::: ", props.prevLocation)
+  console.log("LOCATION++++++++++++:::: ", location)
 
   const options = getFormOptions({
     submitButtongText: "Login"
