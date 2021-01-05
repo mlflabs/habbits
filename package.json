@@ -18,7 +18,7 @@
     "@types/react-router-dom": "^5.1.0",
     "@xstate/react": "^0.8.1",
     "anylogger": "^0.18.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "hookrouter": "^1.2.3",
     "ionic": "^5.4.13",
     "ionicons": "^4.6.3",
