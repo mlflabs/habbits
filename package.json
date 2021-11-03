@@ -37,7 +37,7 @@
     "rxjs": "^6.5.4",
     "typescript": "3.6.3",
     "ulog": "^1.1.0",
-    "validator": "^12.1.0",
+    "validator": "^13.7.0",
     "xstate": "^4.7.6"
   },
   "scripts": {
