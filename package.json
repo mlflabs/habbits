@@ -24,7 +24,7 @@
     "ionicons": "^4.6.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "nanoid": "^2.1.8",
+    "nanoid": "^3.1.31",
     "pouchdb": "^7.1.1",
     "pouchdb-find": "^7.1.1",
     "react": "^16.10.2",
